@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.2.1/ol.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+    #demoMap {
+      height: 100%;
+      width: 100%;
+    }
+    .popup {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background-color: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      width: 300px;
+    }
+    .popUpRow {
+      font-size: 12px;
+    }
+    .aboutPopup {
+      position: absolute;
+      top: 60px;
+      right: 25px;
+      background-color: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      width: 600px;
+    }
+    #popup_content .row {
+      margin-top: 10px;
+    }
+    #focusButton {
+      width: 50px;
+      height: 23px;
+      top: 8px;
+      left: 50px;
+      position: absolute;
+      border: 1px solid rgb(172, 172, 172);
+      border-radius: 2px;
+      background-color: rgb(248, 248, 248);
+    }
+    #focusButton:hover {
+      background-color: rgb(220, 220, 220);
+      border: 1px solid rgb(120, 120, 120);
+    }
+    #autoFocusCheckbox {
+      width: 50px;
+      height: 23px;
+      top: 5px;
+      left: 100px;
+      position: absolute;
+    }
+    #markerCheckbox {
+      width: 50px;
+      height: 23px;
+      top: 28px;
+      left: 100px;
+      position: absolute;
+    }
+    #downloadButton {
+      width: 50px;
+      height: 23px;
+      top: 31px;
+      left: 50px;
+      position: absolute;
+      border: 1px solid rgb(172, 172, 172);
+      border-radius: 2px;
+      background-color: rgb(248, 248, 248);
+    }
+    #downloadButton:hover {
+      background-color: rgb(220, 220, 220);
+      border: 1px solid rgb(120, 120, 120);
+    }
+    #colorSelect {
+      width: 80px;
+      height: 23px;
+      top: 8px;
+      left: 160px;
+      position: absolute;
+      background-color: rgb(248, 248, 248);
+      border-radius: 2px;
+    }
+    #aboutButton {
+      width: 50px;
+      height: 23px;
+      top: 8px;
+      right: 25px;
+      position: absolute;
+      border: 1px solid rgb(172, 172, 172);
+      border-radius: 2px;
+      background-color: rgb(248, 248, 248);
+    }
+    #aboutButton:hover {
+      background-color: rgb(220, 220, 220);
+      border: 1px solid rgb(120, 120, 120);
+    }
+  </style>
+</head>
+<body>
+  <section class="container">
+    <div id="demoMap"></div>
+    <div id="popup" class="popup">
+      <h3>Data</h3>
+      <div id="popup_content">
+        <div class="row" id="longitude">Longitude: </div>
+        <div class="row" id="latitude">Latitude: </div>
+        <div class="row" id="speed">Speed: </div>
+        <div class="row" id="signalstrength">
+          Signal Strength: 
+          <span id="signalText"></span>
+          <img id="signalImage" src="Icons/signal_empty.png" alt="Signal Strength" width="30" height="30">
+        </div>
+      </div>
+    </div>
+    <div id="aboutPopup" class="aboutPopup">
+      <div id="popupContent1">
+        <h3>About ConnectiCar:</h3>
+        <div class="popUpRow">
+          <p>This web application for ConnectiCar is produced on the Software Project -course of 2024 in the University of Oulu.
+            ConnectiCar is a project that involves creating an Onboarding Unit (OBU) that enables real-time vehicle tracking and monitoring through the cloud.
+            The OBU uses 4G/5G/Wi-Fi networks to send data such as vehicle speed and location to the cloud.
+            The red marker on the map moves based on the position data gained from the cloud. The latest received data can be viewed by clicking the marker.
+          </p>
+        </div>
+        <br />
+      </div>
+      <div id="popupContent2" style="display: none;">
+        <h3>Controls:</h3>
+        <div class="popUpRow">
+          <p>+/- Buttons: Zoom the map in or out</p>
+          <p>Follow Checkbox: Map is automatically centered on the Marker when the box is checked</p>
+          <p>Draw Line Checkbox: Draws a colored line between traversed positions and saves data when the box is checked</p>
+          <p>Color Selector Combobox: Pick a color for the line to be drawn.<br />The color can only be switched between when the Draw Line Checkbox is not checked</p>
+          <p>Focus Button: Focus the map on the current position of the Marker</p>
+          <p>Download Button: Download data from the positions connected with the drawn line as a .csv file.<br />
+            The downloaded data is in the following format:<br />
+            Latitude, Longitude, Speed (km/h), Signal Strength, Marker Color, Time and Date</p>
+          <br />
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="prevContent()">←</button>
+        <button onclick="nextContent()">→</button>
+      </div>
+    </div>
+    <div>
+      <button id="focusButton" title="Focus map on the marker" onclick="focusMapOnMarker(latestLon, latestLat)">
+        <img id="focusImage" src="Icons/focus.png" width="20" height="20">
+      </button>
+      <input type="checkbox" id="markerCheckbox" name="markerApplyCheckbox" title="Start/stop applying a line">
+      <input type="checkbox" id="autoFocusCheckbox" name="autoFocusCheckbox" title="Automatically follow the marker's movements">
+      <select name="colors" id="colorSelect" title="Choose a color for the line">
+        <option value="blue" style='font-size: 18px; color: blue;'>Blue&#9679;</option>
+        <option value="red" style='font-size: 18px; color: red;'>Red&#9679;</option>
+        <option value="green" style='font-size: 18px; color: green;'>Green&#9679;</option>
+        <option value="orange" style='font-size: 18px; color: orange;'>Orange&#9679;</option>
+        <option value="purple" style='font-size: 18px; color: purple;'>Purple&#9679;</option>
+        <option value="brown" style='font-size: 18px; color: brown;'>Brown&#9679;</option>
+      </select>
+      <button id="downloadButton" title="Download visible marker data" onclick="formatDownloadData()">
+        <img id="downloadImage" src="Icons/download.png" width="20" height="20">
+      </button>
+      <button id="aboutButton" title="Open About Box" onclick="openAboutPopup()">
+        <img id="questionImage" src="Icons/question.png" width="20" height="20">
+      </button>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/ol@v10.2.1/dist/ol.js"></script>
+  <script>
+
+    const downloadData = [
+      [],  // Latitude values
+      [], // Longitude values
+      [], // Speed values
+      [], // Signal strength values
+      [], // Marker color values
+      [] // DTY values
+    ];
+
+    const images = [
+      "Icons/signal_empty.png",
+      "Icons/signal_1.png",
+      "Icons/signal_2.png",
+      "Icons/signal_3.png",
+      "Icons/signal_4.png"
+    ];
+
+    const colorSelect = document.getElementById('colorSelect');
+
+    const colorMap = {
+        blue: '#0000FF',
+        red: '#FF0000',
+        green: '#008000',
+        orange: '#FFA500',
+        purple: '#800080',
+        brown: '#A52A2A'
+    };
+
+    //Variable for assigning the reading interval for data in milliseconds
+    let readInterval = 500;
+
+    let map, marker, vectorLayer, markerColor;
+
+    let currentContentIndex = 1;
+
+    //Variables for storing the latest received data values 
+    let latestLon = null, latestLat = null, latestSpd = null, latestSignalStrength = null;
+
+    //Default values for data-storing variables in the case of data returning null
+    const defaultLon = 25.466280, defaultLat = 65.059286, defaultSpd = 0, defaultSignalStrength = 99;
+
+    let lineSegments = [];
+    let currentLineFeature = null;
+    let lastPoint = null;
+
+    function getSignalImageIndex(signalStrength) {
+      if (signalStrength == 99) return 0;
+      if (signalStrength <= 1) return 1;
+      if (signalStrength > 1 && signalStrength < 2) return 2;
+      if (signalStrength >= 2 && signalStrength < 30) return 3;
+      return 4;
+    }
+
+    function convertColorValue(selectedValue) {
+        const colorCode = colorMap[selectedValue] || 'Unknown Color';
+        return colorCode;
+    }
+
+    async function mainRead() {
+      const latestData = await getData();
+
+      if ([latestData, latestLon, latestLat, latestSpd, latestSignalStrength]
+          .every(item => item === null)) {
+        latestLon = defaultLon;
+        latestLat = defaultLat;
+        latestSpd = defaultSpd;
+        latestSignalStrength = defaultSignalStrength;
+      } else if (latestData != null) {
+        latestLon = latestData.longitude;
+        latestLat = latestData.latitude;
+        latestSpd = latestData.speed;
+        latestSignalStrength = latestData.signal_strength;
+      }
+
+      document.getElementById('longitude').textContent = `Longitude: ${latestLon.toFixed(6)}`;
+      document.getElementById('latitude').textContent = `Latitude: ${latestLat.toFixed(6)}`;
+      document.getElementById('speed').textContent = `Speed: ${latestSpd}`;
+      document.getElementById('signalText').textContent = `${latestSignalStrength}`;
+
+      const signalImageIndex = getSignalImageIndex(latestSignalStrength);
+      document.getElementById('signalImage').src = images[signalImageIndex];
+
+      if (markerCheckbox.checked) {
+          updateDownloadData();
+        }
+
+      updateMap(latestLon, latestLat, latestData);
+    }
+
+    function updateMap(longitude, latitude, latestData) {
+      const newCoordinates = ol.proj.fromLonLat([longitude, latitude]);
+
+      if (!map) {
+          map = new ol.Map({
+              target: 'demoMap',
+              layers: [
+                  new ol.layer.Tile({
+                      source: new ol.source.OSM()
+                  })
+              ],
+              view: new ol.View({
+                  center: newCoordinates,
+                  zoom: 14,
+                  maxZoom: 20
+              })
+          });
+
+          marker = new ol.Feature({
+              geometry: new ol.geom.Point(newCoordinates)
+          });
+
+          const markerIconStyle = new ol.style.Style({
+              image: new ol.style.Icon({
+                  anchor: [0.5, 1],
+                  src: 'Icons/marker_icon.png',
+                  scale: 0.075
+              })
+          });
+
+          marker.setStyle(markerIconStyle);
+
+          const markerSource = new ol.source.Vector({
+              features: [marker]
+          });
+
+          vectorLayer = new ol.layer.Vector({
+              source: markerSource
+          });
+
+          map.addLayer(vectorLayer);
+
+          addMarkerClickListener();
+
+          map.getView().setCenter(ol.proj.fromLonLat([longitude, latitude]));
+      } else {
+        animateMarkerWithLine(newCoordinates);
+        if (autoFocusCheckbox.checked) {
+          focusMapOnMarker(latestLon, latestLat);
+        }
+      }
+    }
+
+    function animateMarkerWithLine(newCoordinates) {
+    const duration = readInterval / 2;
+    const startCoordinates = marker.getGeometry().getCoordinates();
+    const startTime = Date.now();
+
+      function moveMarkerAndExtendLine() {
+        const elapsedTime = Date.now() - startTime;
+        const fraction = Math.min(elapsedTime / duration, 1);
+
+        const interpolatedCoordinates = [
+            startCoordinates[0] + (newCoordinates[0] - startCoordinates[0]) * fraction,
+            startCoordinates[1] + (newCoordinates[1] - startCoordinates[1]) * fraction,
+        ];
+
+        marker.getGeometry().setCoordinates(interpolatedCoordinates);
+
+        if (markerCheckbox.checked) {
+          if (!currentLineFeature) {
+          currentLineFeature = createNewLineSegment(startCoordinates);
+          }
+        
+          const lineGeometry = currentLineFeature.getGeometry();
+
+          const currentLineCoords = lineGeometry.getCoordinates();
+          currentLineCoords.push(interpolatedCoordinates);
+          lineGeometry.setCoordinates(currentLineCoords);
+        }
+        else {
+          currentLineFeature = null;
+        }
+        
+        if (fraction < 1) {
+            requestAnimationFrame(moveMarkerAndExtendLine);
+        }
+      }
+    requestAnimationFrame(moveMarkerAndExtendLine);
+}
+
+
+    function createNewLineSegment(startingPoint) {
+        
+        markerColor = colorSelect.value;
+
+        const lineFeature = new ol.Feature({
+            geometry: new ol.geom.LineString([startingPoint])
+        });
+
+        lineFeature.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: convertColorValue(colorSelect.value),
+                width: 3
+            })
+        }));
+
+        const lineSource = new ol.source.Vector({
+            features: [lineFeature]
+        });
+
+        const lineLayer = new ol.layer.Vector({
+            source: lineSource
+        });
+
+        map.addLayer(lineLayer);
+        lineSegments.push(lineFeature);
+        return lineFeature;
+    }
+
+    function focusMapOnMarker(longitude, latitude) {
+      const view = map.getView();
+      const currentCenter = view.getCenter();
+      const newCenter = ol.proj.fromLonLat([longitude, latitude]);
+      const duration = readInterval / 2;
+      const startTime = Date.now();
+
+      function moveMap() {
+          const elapsedTime = Date.now() - startTime;
+          const fraction = Math.min(elapsedTime / duration, 1);
+
+          const interpolatedCenter = [
+              currentCenter[0] + (newCenter[0] - currentCenter[0]) * fraction,
+              currentCenter[1] + (newCenter[1] - currentCenter[1]) * fraction,
+          ];
+
+          view.setCenter(interpolatedCenter);
+
+          if (fraction < 1) {
+              requestAnimationFrame(moveMap);
+          }
+      }
+
+      requestAnimationFrame(moveMap);
+    }
+
+    function addMarkerClickListener() {
+      const popup = document.getElementById('popup');
+      map.on('click', function (evt) {
+        const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+          return feature;
+        });
+
+        if (feature === marker) {
+          popup.style.display = 'block';
+
+          document.getElementById('longitude').textContent = `Longitude: ${latestLon}`;
+          document.getElementById('latitude').textContent = `Latitude: ${latestLat}`;
+          document.getElementById('speed').textContent = `Speed: ${latestSpd}`;
+          document.getElementById('signalText').textContent = `${latestSignalStrength}`;
+        } else {
+          popup.style.display = 'none';
+        }
+      });
+    }
+
+    function openAboutPopup() {
+      const popup = document.getElementById('aboutPopup');
+      if (popup.style.display == 'block') {
+        popup.style.display = 'none';
+      } else {
+        popup.style.display = 'block';
+      }
+    }
+
+    function prevContent() {
+      const newIndex = currentContentIndex === 1 ? 2 : 1;
+      showContent(newIndex);
+    }
+
+    function nextContent() {
+      const newIndex = currentContentIndex === 2 ? 1 : 2;
+      showContent(newIndex);
+    }
+
+    function showContent(index) {
+      document.getElementById('popupContent1').style.display = index === 1 ? 'block' : 'none';
+      document.getElementById('popupContent2').style.display = index === 2 ? 'block' : 'none';
+      currentContentIndex = index;
+    }
+
+    function updateDownloadData() {
+        if ([latestLon, latestLat, latestSpd, latestSignalStrength].some(item => item !== null)) {
+          [latestLat, latestLon, latestSpd, latestSignalStrength, markerColor, getDateTime()].forEach((value, index) => {
+            downloadData[index].push(value);
+          });
+        }
+      }
+
+    function getDateTime() {
+
+      const now = Date.now();
+      const date = new Date(now);
+
+      const seconds = date.getSeconds();
+      const minutes = date.getMinutes();
+      const hours = date.getHours();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      const formattedDate = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
+      return formattedDate;
+    }
+
+    function formatDownloadData() {
+
+      if (downloadData.every(subarray => Array.isArray(subarray) && subarray.length === 0)) return;
+
+      const headers = ["Latitude", "Longitude", "Speed (km/h)", "Signal Strength", "Marker Color", "Time and Date"];
+
+      const maxLength = Math.max(...downloadData.map(arr => arr.length));
+
+      const rows = [headers];
+
+      for (let i = 0; i < maxLength; i++) {
+        const row = downloadData.map(col => col[i] || ""); // Use empty string if value is missing
+        rows.push(row);
+      }
+
+      const csvContent = rows.map(row => row.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+      const url = URL.createObjectURL(blob);
+
+      // Create a temporary <a> element to trigger the download
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "trackData.csv");
+
+      // Append to the DOM (necessary for some browsers)
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    async function getData() {
+      const response = await fetch("/api");
+      const data = await response.json();
+      return data;
+    }
+
+    mainRead();
+    setInterval(mainRead, readInterval);
+  </script>
+</body>
+</html>
