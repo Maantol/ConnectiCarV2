@@ -51,7 +51,7 @@ def read():
     database = "toyota_rav4_hybrid_2017_pt_generated.dbc"
     interface = "socketcan"
     channel = "can0"
-    delay = 0;
+    delay = 0
 
     _start = time.time()
     db = cantools.database.load_file(database)
