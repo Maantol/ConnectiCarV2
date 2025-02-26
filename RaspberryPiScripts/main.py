@@ -1,4 +1,5 @@
 import time
+import canreader
 from influx_db_handler import InfluxDBHandler
 
 def main():
@@ -10,6 +11,7 @@ def main():
         # print("Waiting 2 minutes for GPS.")
         # time.sleep(120)
         while True:
+            canreader.read()
             influx_db_handler.read_and_write_signal_strength_data()
             time.sleep(3)
             # influx_db_handler.read_and_write_gps_data()
