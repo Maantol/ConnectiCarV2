@@ -51,6 +51,7 @@ def read():
     database = "toyota_rav4_hybrid_2017_pt_generated.dbc"
     interface = "socketcan"
     channel = "can0"
+    delay = 0;
 
     _start = time.time()
     db = cantools.database.load_file(database)
@@ -58,6 +59,7 @@ def read():
 
     try:
         while True:
+            time.sleep(delay)
             message = bus.recv()
             db_message = db.get_message_by_frame_id(message.arbitration_id)
             print(f"Name: {db_message.name}")
