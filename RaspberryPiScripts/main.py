@@ -16,6 +16,7 @@ def main():
             time.sleep(3)
             # influx_db_handler.read_and_write_gps_data()
             # time.sleep(3)
+            # change
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
     # finally:
