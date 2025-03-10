@@ -1,5 +1,7 @@
 import time
 import canreader
+from mqtt_publisher import publish_mqtt
+from mqtt_publisher import MQTTMessage
 from influx_db_handler import InfluxDBHandler
 
 def main():
@@ -7,15 +9,18 @@ def main():
     """
     influx_db_handler = InfluxDBHandler()
     try:
-        # influx_db_handler.serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
-        # print("Waiting 2 minutes for GPS.")
-        # time.sleep(120)
+        canreader.read()
+        """
+        influx_db_handler.serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
+        print("Waiting 2 minutes for GPS.")
+        time.sleep(120)
         while True:
-            canreader.read()
-            influx_db_handler.read_and_write_signal_strength_data()
-            time.sleep(3)
-            # influx_db_handler.read_and_write_gps_data()
-            # time.sleep(3)
+            msg = MQTTMessage()
+            msg.add_signal_strength(serial_handler.get_signal_strength())
+            msg.add_gps_data(*serial_handler.get_gps_data())
+            msg.add_can_data(canreader.get_can_data())
+            publish_mqtt("connecticar-mqtt.2.rahtiapp.fi", "toyota", msg.to_json(), 443)
+        """
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
     # finally:

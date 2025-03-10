@@ -1,3 +1,5 @@
+/RaspberryPiScripts/mqtt_subscriber.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
