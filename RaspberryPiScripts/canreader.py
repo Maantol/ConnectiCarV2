@@ -61,10 +61,19 @@ def read():
         while True:
             time.sleep(delay)
             message = bus.recv()
+            # Decode & return CAN data
+            can_data = create_message_entry(message, db, {}, set())
+            yield can_data  # generator to yield data
+
+            """
             db_message = db.get_message_by_frame_id(message.arbitration_id)
             print(f"Name: {db_message.name}")
             print(f"Data: {db.decode_message(message.arbitration_id, message.data)}")
-            print(f"Encoded: {message}")
+            print(f"Encoded: {message}") """
+
+            
+
+
     except KeyboardInterrupt:
         _logger.info("Exiting...")
     except IndexError:
