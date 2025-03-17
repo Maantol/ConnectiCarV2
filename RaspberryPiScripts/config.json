@@ -1,0 +1,14 @@
+{
+    "mqtt": {
+        "certs_path": "./certs/ca.crt",
+        "broker": "connecticar-mqtt.2.rahtiapp.fi",
+        "port": 443,
+        "topic": "toyota"
+    },
+    "can": {
+        "interface": "socketcan",
+        "channel": "can0",
+        "delay": 0,
+        "database": "toyota_rav4_hybrid_2017_pt_generated.dbc"
+    }
+}

@@ -7,6 +7,7 @@ import os
 import time
 import cantools.database
 import cantools.database.namedsignalvalue
+import config as cfg
 
 _logger = logging.getLogger(__name__)
 
@@ -48,10 +49,11 @@ def create_message_entry(
 
 
 def read():
-    database = "toyota_rav4_hybrid_2017_pt_generated.dbc"
-    interface = "socketcan"
-    channel = "can0"
-    delay = 0
+    config = cfg.get_config()
+    database = config["can"]["database"]
+    interface = config["can"]["interface"]
+    channel = config["can"]["channel"]
+    delay = config["can"]["delay"]
 
     _start = time.time()
     db = cantools.database.load_file(database)
