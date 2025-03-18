@@ -1,5 +1,4 @@
-import time
-import canreader
+import can_reader
 from mqtt_publisher import MQTTMessage, publish_mqtt
 from serial_handler import SerialHandler
 
@@ -21,7 +20,6 @@ def main():
             """ # SIGNAL STRENGTH
             signal_strength = serial_handler.read_signal_strength_data()
             mqtt_message.add_signal_strength(signal_strength)
-            print(f"Initial signal strength: {signal_strength}")
 
             # GPS DATA
             gps_data = serial_handler.read_gps_data()

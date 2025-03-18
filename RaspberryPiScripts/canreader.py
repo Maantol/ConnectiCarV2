@@ -1,9 +1,7 @@
 import can
 import cantools
-import datetime
 import json
 import logging
-import os
 import time
 import cantools.database
 import cantools.database.namedsignalvalue
