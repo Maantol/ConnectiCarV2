@@ -3,6 +3,16 @@ import paho.mqtt.client as mqtt
 import config as cfg
 
 config = cfg.get_config()
+broker = config["mqtt"]["broker"]
+topic = config["mqtt"]["topic"]
+port = config["mqtt"]["port"]
+certs_path = config["mqtt"]["certs_path"]
+
+client = mqtt.Client()
+client.tls_set(certs_path)
+client.tls_insecure_set(True)
+client.connect(broker, port)
+print(f"Connected to MQTT broker {broker} on port {port}")
 
 class MQTTMessage:
     """
@@ -30,19 +40,8 @@ def publish_mqtt(message: str):
     
     :param message: Message to send
     """
-    broker = config["mqtt"]["broker"]
-    topic = config["mqtt"]["topic"]
-    port = config["mqtt"]["port"]
-    certs_path = config["mqtt"]["certs_path"]
-    
-    client = mqtt.Client()
-    client.tls_set(certs_path)
-    client.tls_insecure_set(True)
-    client.connect(broker, port)
-    print(f"Connected to MQTT broker {broker} on port {port}")
     client.publish(topic, message)
     print(f"Published message: {message} to topic {topic}")
-    client.disconnect()
 
 if __name__ == "__main__":
     publish_mqtt("Hello, MQTT!")
