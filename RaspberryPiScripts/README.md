@@ -124,6 +124,8 @@ python -m pip install pyserial
     - Contains all the functionalities that have to do with InfluxDB, e.g. sending data to the database.
 - `serial_handler.py`:
     - Contains all the functionalities that have to do with the serial connection - e.g. sending AT commands and reading the received output.
+- `canreader.py`:
+    - Reads the data stream from car's canbus
 
 ### Running the scripts
 To run any of the scripts, simply give the following command:
