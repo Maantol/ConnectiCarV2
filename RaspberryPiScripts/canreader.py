@@ -47,7 +47,7 @@ def create_message_entry(
             "raw": "0x" + message.data.hex(),
         }
 
-
+# For reading real can connection
 def read():
     config = cfg.get_config()
     database = config["can"]["database"]
@@ -73,9 +73,6 @@ def read():
             print(f"Data: {db.decode_message(message.arbitration_id, message.data)}")
             print(f"Encoded: {message}") """
 
-            
-
-
     except KeyboardInterrupt:
         _logger.info("Exiting...")
     except IndexError:
@@ -89,7 +86,34 @@ def read():
         _end = time.time()
         if _end - _finish > 30:
             _logger.warning(f"Ran {_end - _finish} seconds behind!")
+
+# For simulation from json file
+def read_from_json():
+    #settings from config
+    config = cfg.get_config()
+    channel = config["can"]["channel"]
+    delay = config["can"]["delay"]
+
+    try:
+        with open(channel, "r") as file:
+            file_content = file.read()
+
+            try:
+                messages = json.loads(file_content)  
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+                return     
+
+        for message in messages:
+            time.sleep(delay) # simulated delay
+            if message.get("name") != "Unknown": # Filter placeholder!!! TODO: real filter file (vin 1-3 + unknowns etc..)
+                yield message  # Yield messages to simulate canbus
+    
+    except FileNotFoundError:
+        print(f"Error: {channel} not found.")
+
     
 if __name__ == "__main__":
-    read()
+    for data in read_from_json():  
+        print(json.dumps(data, indent=4))  # Prints json...
             

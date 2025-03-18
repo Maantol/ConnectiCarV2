@@ -1,17 +1,13 @@
 import time
 import canreader
 from mqtt_publisher import MQTTMessage, publish_mqtt
-from influx_db_handler import InfluxDBHandler
 from serial_handler import SerialHandler
 
 def main():
-    """Gets the signal strength data and GPS data continuously and sends it to influxDB.
-    """
-    # influx_db_handler = InfluxDBHandler()
     serial_handler = SerialHandler()
 
     try:
-        #canreader.read()
+        canreader.read_from_json()
         """
         serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
         print("Waiting 2 minutes for GPS.")
@@ -19,7 +15,10 @@ def main():
         """
         while True:
             mqtt_message = MQTTMessage()
-            # SIGNAL STRENGTH
+            json_message = None
+
+            #commented for testing with json
+            """ # SIGNAL STRENGTH
             signal_strength = serial_handler.read_signal_strength_data()
             mqtt_message.add_signal_strength(signal_strength)
             print(f"Initial signal strength: {signal_strength}")
@@ -28,18 +27,18 @@ def main():
             gps_data = serial_handler.read_gps_data()
             if gps_data:
                 timestamp, latitude, longitude, speed, date = gps_data
-                mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date)
+                mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date) """
            
             # CANDUMP
-            for can_data in canreader.read():  # Data from canbus
-                mqtt_message.add_can_data(can_data)  # Add data to  message
-                # test message
-                print(f"CAN data (JSON format): {json_message}")
-                
+            for message in canreader.read_from_json():  # Data from canbus, .read() for actual connection
+                mqtt_message.add_can_data(message)  # Add data to  message
+                # TEST PRINT
+                print(f"CAN data (JSON format): {message}")
+            
             # Convert to JSON format
             json_message = mqtt_message.to_json()
             #TEST PRINT
-            print(f"Updated message JSON with can, signal & gps: {json_message}")
+            print(f"Updated message JSON with can, signal & gps: {json_message}") # doesnt work yet? only adds latest json message
 
             # mqtt publishing...
             # publish_mqtt("connecticar-mqtt.2.rahtiapp.fi", "toyota", msg.to_json(), 443)
@@ -51,5 +50,5 @@ def main():
         # serial.send_command_to_serial("AT+QGPSEND")  # turn off GPS
         # print("GPS connection close")
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
