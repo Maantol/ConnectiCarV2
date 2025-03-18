@@ -1,4 +1,5 @@
 import can_reader
+import time
 from mqtt_publisher import MQTTMessage, publish_mqtt
 from serial_handler import SerialHandler
 
@@ -6,7 +7,7 @@ def main():
     serial_handler = SerialHandler()
 
     try:
-        canreader.read_from_json()
+        can_reader.read_from_json()
         """
         serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
         print("Waiting 2 minutes for GPS.")
@@ -28,7 +29,7 @@ def main():
                 mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date) """
            
             # CANDUMP
-            for message in canreader.read_from_json():  # Data from canbus, .read() for actual connection
+            for message in can_reader.read_from_json():  # Data from canbus, .read() for actual connection
                 mqtt_message.add_can_data(message)  # Add data to  message
                 # TEST PRINT
                 print(f"CAN data (JSON format): {message}")
