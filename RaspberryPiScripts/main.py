@@ -13,7 +13,7 @@ def main():
     try:
         #canreader.read()
         """
-        influx_db_handler.serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
+        serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
         print("Waiting 2 minutes for GPS.")
         time.sleep(120)
         """
@@ -48,7 +48,7 @@ def main():
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
     # finally:
-        # influx_db_handler.serial.send_command_to_serial("AT+QGPSEND")  # turn off GPS
+        # serial.send_command_to_serial("AT+QGPSEND")  # turn off GPS
         # print("GPS connection close")
 
     if __name__ == "__main__":
