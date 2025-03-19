@@ -27,6 +27,17 @@ def main():
             if gps_data:
                 timestamp, latitude, longitude, speed, date = gps_data
                 mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date) """
+            
+            # Json simulation...
+            gps_data = serial_handler.read_json_data()
+            if gps_data:
+                for data in gps_data:
+                    timestamp = data["utc"]
+                    latitude = data["latitude"]
+                    longitude = data["longitude"]
+                    speed = data["speed"]
+                    date = data["date"]
+                mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date)
            
             # CANDUMP
             for message in can_reader.read_from_json():  # Data from canbus, .read() for actual connection
@@ -36,8 +47,13 @@ def main():
             
             # Convert to JSON format
             json_message = mqtt_message.to_json()
+            
+
             #TEST PRINT
-            print(f"Updated message JSON with can, signal & gps: {json_message}") # doesnt work yet? only adds latest json message
+            print(f"Updated message JSON with can, signal & gps: {json_message}") # TESTING WITH MAIN LOOP DOESN'T WORK, WAITS FOR GENERATORS TO FINISH -> ALWAYS OUTPUTS LAST MESSAGE
+
+
+
 
             # mqtt publishing...
             # publish_mqtt("connecticar-mqtt.2.rahtiapp.fi", "toyota", msg.to_json(), 443)

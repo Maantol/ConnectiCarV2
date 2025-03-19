@@ -6,6 +6,7 @@ import time
 import cantools.database
 import cantools.database.namedsignalvalue
 import config as cfg
+import random
 
 _logger = logging.getLogger(__name__)
 
@@ -90,7 +91,6 @@ def read_from_json():
     #settings from config
     config = cfg.get_config()
     channel = config["can"]["channel"]
-    delay = config["can"]["delay"]
 
     try:
         with open(channel, "r") as file:
@@ -103,7 +103,7 @@ def read_from_json():
                 return     
 
         for message in messages:
-            time.sleep(delay) # simulated delay
+            time.sleep(random.uniform(0.03, 0.06)) # simulated random delay
             if message.get("name") != "Unknown": # Filter placeholder!!! TODO: real filter file (vin 1-3 + unknowns etc..)
                 yield message  # Yield messages to simulate canbus
     

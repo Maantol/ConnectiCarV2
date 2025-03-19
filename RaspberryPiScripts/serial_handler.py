@@ -1,5 +1,7 @@
 import serial
 import re
+import json
+import time
 
 
 class SerialHandler:
@@ -9,12 +11,14 @@ class SerialHandler:
         
         Args:
             used_serial (str, optional): Used serial bus, /dev/ttyUSB2 by default.
-        """
+        
         try:
             self.s = serial.Serial(used_serial, 115200, timeout=1)
         except Exception as e:  # to be specified later on.
             print(e)
-        
+        """
+
+
     def read_signal_strength_data(self):
         """Reads signal strength data through the serial port.
 
@@ -86,3 +90,36 @@ class SerialHandler:
         if return_output:
             self.s.readline()  # Filter out the line containing the given command
             return self.s.readline().decode().strip()
+        
+
+
+    # For simulation from json file
+    def read_json_data(self, test_data_file="gpsmockdata.json"):
+        
+        try:
+            with open(test_data_file, "r") as file:
+                file_content = file.read()
+
+                try:
+                    data = json.loads(file_content)  
+                    #print(f"loaded json data: {data}")
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+                    return   
+            
+            for gps_data in data:
+                time.sleep(0.13) # simulated delay
+                yield gps_data  # Yield messages to simulate canbus
+    
+        except Exception as e:
+            print(f"Error loading test data from {test_data_file}: {e}")
+            return {}
+        
+# --- TEST THE MOCK SERIAL HANDLER ---
+if __name__ == "__main__":
+    mock_serial = SerialHandler()
+    # Test GPS data
+    gps_data = mock_serial.read_json_data()
+    for data in gps_data:
+        print("")
+
