@@ -184,3 +184,6 @@ desktop.ini
 .Spotlight-V100
 .Trashes
 ._*
+
+#dumpfile
+can_dump_*.json
