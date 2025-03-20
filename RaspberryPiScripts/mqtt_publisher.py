@@ -41,7 +41,6 @@ def publish_mqtt(message: str):
     :param message: Message to send
     """
     client.publish(topic, message)
-    print(f"Published message: {message} to topic {topic}")
 
 if __name__ == "__main__":
     publish_mqtt("Hello, MQTT!")

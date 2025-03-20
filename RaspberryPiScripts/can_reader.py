@@ -10,10 +10,15 @@ import random
 
 _logger = logging.getLogger(__name__)
 
+config = cfg.get_config()
+database = config["can"]["database"]
+interface = config["can"]["interface"]
+channel = config["can"]["channel"]
+delay = config["can"]["delay"]
+
 def create_message_entry(
     message: can.Message,
     db: cantools.database.can.Database,
-    args: dict,
     filter_set: set,
 ) -> dict:
     try:
@@ -48,49 +53,16 @@ def create_message_entry(
 
 # For reading real can connection
 def read():
-    config = cfg.get_config()
-    database = config["can"]["database"]
-    interface = config["can"]["interface"]
-    channel = config["can"]["channel"]
-    delay = config["can"]["delay"]
-
-    _start = time.time()
     db = cantools.database.load_file(database)
     bus = can.Bus(channel=channel, interface=interface)
 
-    try:
-        while True:
-            time.sleep(delay)
-            message = bus.recv()
-            # Decode & return CAN data
-            can_data = create_message_entry(message, db, {}, set())
-            yield can_data  # generator to yield data
-
-            """
-            db_message = db.get_message_by_frame_id(message.arbitration_id)
-            print(f"Name: {db_message.name}")
-            print(f"Data: {db.decode_message(message.arbitration_id, message.data)}")
-            print(f"Encoded: {message}") """
-
-    except KeyboardInterrupt:
-        _logger.info("Exiting...")
-    except IndexError:
-        _logger.info("End of data, exiting...")
-    finally:
-        _logger.info("Closing CAN bus...")
-        bus.shutdown()
-        _logger.info("Finalizing MQTT data transmissions...")
-        _finish = time.time()
-        _logger.warning(f"Took {_finish - _start} seconds to run.")
-        _end = time.time()
-        if _end - _finish > 30:
-            _logger.warning(f"Ran {_end - _finish} seconds behind!")
+    time.sleep(delay)
+    message = bus.recv()
+    # Decode & return CAN data
+    return create_message_entry(message, db, set())
 
 # For simulation from json file
 def read_from_json():
-    #settings from config
-    config = cfg.get_config()
-    channel = config["can"]["channel"]
 
     try:
         with open(channel, "r") as file:
@@ -106,6 +78,25 @@ def read_from_json():
             time.sleep(random.uniform(0.03, 0.06)) # simulated random delay
             if message.get("name") != "Unknown": # Filter placeholder!!! TODO: real filter file (vin 1-3 + unknowns etc..)
                 yield message  # Yield messages to simulate canbus
+    
+    except FileNotFoundError:
+        print(f"Error: {channel} not found.")
+
+def read_object_from_json(index=0):
+    try:
+        with open(channel, "r") as file:
+            file_content = file.read()
+
+            try:
+                messages = json.loads(file_content)  
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+                return     
+
+        if index < len(messages):
+            return messages[index]
+        else:
+            return None
     
     except FileNotFoundError:
         print(f"Error: {channel} not found.")
