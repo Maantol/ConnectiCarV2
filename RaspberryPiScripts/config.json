@@ -6,9 +6,14 @@
         "topic": "toyota"
     },
     "can": {
-        "interface": "file",
-        "channel": "can_dump_2025-03-18T14_31_26.798219.json",
+        "interface": "socketcan",
+        "channel": "can0",
         "delay": 0.05,
         "database": "toyota_rav4_hybrid_2017_pt_generated.dbc"
+    },
+    "simulation": {
+        "channel": "can_dump_2025-03-18T14_31_26.798219.json",
+        "interface": "file",
+        "gps_data": "gpsmockdata.json"
     }
 }

@@ -63,9 +63,6 @@ def read():
 
 # For simulation from json file
 def read_from_json():
-    #settings from config
-    config = cfg.get_config()
-    channel = config["can"]["channel"]
 
     try:
         with open(channel, "r") as file:

@@ -2,7 +2,7 @@ import serial
 import re
 import json
 import time
-
+import config as cfg
 
 class SerialHandler:
     
@@ -94,7 +94,9 @@ class SerialHandler:
 
 
     # For simulation from json file
-    def read_json_data(self, test_data_file="gpsmockdata.json"):
+    def read_json_data(self):
+
+        test_data_file = cfg.get_config()["simulation"]["gps_data"]
         
         try:
             with open(test_data_file, "r") as file:
@@ -117,7 +119,10 @@ class SerialHandler:
         
 
     # reads next line from json file
-    def read_gps_json_object_from_array(self, test_data_file="gpsmockdata.json", index=0):
+    def read_gps_json_object_from_array(self, index=0):
+
+        test_data_file = cfg.get_config()["simulation"]["gps_data"]
+
         try:
             with open(test_data_file, "r") as file:
                 file_content = file.read()

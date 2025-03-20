@@ -83,4 +83,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test2()
+    test_no_generator()
