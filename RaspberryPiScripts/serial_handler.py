@@ -115,6 +115,33 @@ class SerialHandler:
             print(f"Error loading test data from {test_data_file}: {e}")
             return {}
         
+
+    # reads next line from json file
+    def read_gps_json_object_from_array(self, test_data_file="gpsmockdata.json", index=0):
+        try:
+            with open(test_data_file, "r") as file:
+                file_content = file.read()
+
+                try:
+                    data = json.loads(file_content)  
+                    print(f"loaded json data: {data}")
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+                    return   
+            
+            if index < len(data):
+                return data[index]
+            else:
+                return None
+    
+        except Exception as e:
+            print(f"Error loading test data from {test_data_file}: {e}")
+            return {}
+        
+    # simulates random signal strength
+    def read_random_signal_strength(self):
+        return int(time.time()) % 32
+        
 # --- TEST THE MOCK SERIAL HANDLER ---
 if __name__ == "__main__":
     mock_serial = SerialHandler()
