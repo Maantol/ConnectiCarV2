@@ -15,6 +15,9 @@ database = config["can"]["database"]
 interface = config["can"]["interface"]
 channel = config["can"]["channel"]
 delay = config["can"]["delay"]
+filter_set = set(config["can"]["filter_set"])
+db = cantools.database.load_file(database)
+bus = can.Bus(channel=channel, interface=interface)
 
 def create_message_entry(
     message: can.Message,
@@ -53,9 +56,6 @@ def create_message_entry(
 
 # For reading real can connection
 def read():
-    db = cantools.database.load_file(database)
-    bus = can.Bus(channel=channel, interface=interface)
-
     time.sleep(delay)
     message = bus.recv()
     # Decode & return CAN data

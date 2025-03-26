@@ -74,6 +74,8 @@ def main():
             #gps_data = serial_handler.read_gps_data()
             #mqtt_message.add_gps_data(gps_data["utc"], gps_data["latitude"], gps_data["longitude"], gps_data["speed"], gps_data["date"])
             can_data = can_reader.read()
+            if "Unknown" in can_data["name"]:
+                continue
             mqtt_message.add_can_data(can_data)
             print(f"Message: {mqtt_message.to_json()}")
             publish_mqtt(mqtt_message.to_json())
@@ -83,4 +85,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test_no_generator()
+    main()
