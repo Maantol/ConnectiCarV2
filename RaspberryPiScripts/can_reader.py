@@ -5,6 +5,7 @@ import logging
 import time
 import cantools.database
 import cantools.database.namedsignalvalue
+from RaspberryPiScripts.mqtt_publisher import SimpleMQTTMessage
 import config as cfg
 import random
 
@@ -53,13 +54,53 @@ def create_message_entry(
             "data": message.data.hex(),
             "raw": "0x" + message.data.hex(),
         }
+    
+# creates a list of payloads for each signal in a message
+def create_mqtt_payloads(
+    db_message: cantools.database.can.Message,
+    message: cantools.database.can.Message,
+    timestamp: float
+) -> list[SimpleMQTTMessage]: 
+    
+    payloads = [SimpleMQTTMessage]
+
+    for name, value in message.items():
+
+        payload = SimpleMQTTMessage()
+        try:
+            unit = db_message.get_signal_by_name(name).unit
+        except KeyError:
+            unit = None
+        
+        if type(value) == cantools.database.namedsignalvalue.NamedSignalValue:
+            payload.message = json.dumps(
+                                    {
+                                        "timestamp": timestamp,
+                                        "data": value.value,
+                                        "unit": unit,
+                                    }
+                                )   
+        else:
+            payload.message = json.dumps(
+                                    {
+                                        "timestamp": timestamp,
+                                        "data": value,
+                                        "unit": unit,
+                                    }
+                                )   
+
+        payload.subtopic = f"/{db_message.name}/{name}"
+        payloads.append(payload)
+
+    return payloads
 
 # For reading real can connection
 def read():
     time.sleep(delay)
     message = bus.recv()
     # Decode & return CAN data
-    return create_message_entry(message, db, set())
+    #return create_message_entry(message, db, set())
+    return create_mqtt_payloads(db.get_message_by_frame_id(message.arbitration_id), db.decode_message(message.arbitration_id, message.data), message.timestamp)
 
 # For simulation from json file
 def read_from_json():
