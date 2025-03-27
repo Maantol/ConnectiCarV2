@@ -90,42 +90,60 @@ route add -net 0.0.0.0 "$interface"
 ```
 > NOTE: The `startupscript.sh` will most likely not work properly if modemmanager and network-manager haven't been removed from the device.
 
-## Running the other scripts after set-up is done
+# Running the other scripts after setting up Raspberry
 
-### Setting up
-To ensure everything works correctly, some changes need to be made in `influx_db_handler.py` before running any of the other scripts. You need to change:
-```python
-self.url = "YOUR_URL_HERE"
-self.token = "YOUR_TOKEN_HERE"
-self.org = "YOUR_ORG_HERE"
-self.bucket = "YOUR_BUCKET_HERE"
-```
-The values must be from an existing instance of InfluxDB that you are using or have created.
+### Setting up / Installation?
+1. Cloning the repository:
+    ```sh
+    git clone <url>
+    cd RaspberryPiScripts folder..
+    ```
+2. Installing dependencies:
+    ```sh
+    pip install -r requirements.txt
+    ```
 
-Also the following python libraries need to be installed:
+### Architecture / Code structure
+- `main.py`: Running main process loop
+- `can_reader.py`: CAN bus data reading
+- `serial_handler.py`: (Reads GPS & signal strength), currently disabled due to possibly changing the modem in the future
+- `mqtt_publisher.py`: Formatting and publishing MQTT messages
 
-```python
-pip install influxdb-client
-python -m pip install pyserial
-```
-
-### Contents of the scripts
+### Contents of the scripts / scripts + usage?
 
 - `main.py`:
-    - Reads signal strength values from the device and sends them to the InfluxDB in a loop.
-    - Everything regarding GPS data has been commented out since the GPS didn't work on our device.
+    - Reads signal strength (& GPS) values using `serial_handler.py` 
+    - Reads data from CAN bus using `can_reader.py`
+    - Filters out messages currently "unknown" in the dbc file
+    - Formats the data into JSON and sends it to telegraf using `mqtt_publisher.py`
+    - Test mode using saved .json dump for testing without physical can connection
+    
+- `can_reader.py`:
+    - Reads the data stream from car's CAN bus in real-time
+    - Decodes the messages using given DBC file
+    - Simulation mode for CAN data from a JSON for simulation/testing purposes without physical CAN connection
+
+- `serial_handler.py`:
+    - Contains all the functionalities that have to do with the serial connection - e.g. sending AT commands and reading the received output for signal strength & GPS location.
+    - Simulation mode for testing & development without physical GPS module.
+
+- `mqtt_publisher.py`
+    - Connection to an MQTT broker using TLS encryption
+    - Publishing data from CAN bus & modem in real-time
+    - Configuration via config file
+
+- `config.py`
+    - Loads the configuration file
+
 - `testing_client.py`:
     - A simple client that can be used to test sending (AT) commands via the serial connection. Will create a log file (*serial_comms.log*) to record everything that has been sent and received.
     - The testing client will return all output, even if the given command is incorrect.
+
 - `unit_tests.py`:
     - Simple unit tests testing the different parts of the functionality.
     - No unit tests were made for the GPS or anything that would be dependant on the GPS data since we were unable to get it from our device via AT commands.
-- `influx_db_handler.py`:
-    - Contains all the functionalities that have to do with InfluxDB, e.g. sending data to the database.
-- `serial_handler.py`:
-    - Contains all the functionalities that have to do with the serial connection - e.g. sending AT commands and reading the received output.
-- `canreader.py`:
-    - Reads the data stream from car's canbus
+
+
 
 ### Running the scripts
 To run any of the scripts, simply give the following command:
