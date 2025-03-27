@@ -2,11 +2,11 @@ import json
 import paho.mqtt.client as mqtt
 import config as cfg
 
-config = cfg.get_config()
-broker = config["mqtt"]["broker"]
-topic = config["mqtt"]["topic"]
-port = config["mqtt"]["port"]
-certs_path = config["mqtt"]["certs_path"]
+config: dict = cfg.get_config()
+broker: str = config["mqtt"]["broker"]
+topic: str = config["mqtt"]["topic"]
+port: int = config["mqtt"]["port"]
+certs_path: str = config["mqtt"]["certs_path"]
 
 client = mqtt.Client()
 client.tls_set(certs_path)
@@ -33,14 +33,30 @@ class MQTTMessage:
 
     def to_json(self):
         return json.dumps(self.__dict__)
+    
+class SimpleMQTTMessage:
+    """
+    Class for creating a simple message to be sent to an MQTT broker.
+    """
+    def __init__(self, subtopic: str, message: str):
+        self.subtopic = subtopic
+        self.message = message
 
-def publish_mqtt(message: str):
+def publish_mqtt(subtopic: str, message: str):
     """
     Publishes a message to a configured MQTT topic.
     
     :param message: Message to send
     """
-    client.publish(topic, message)
+    client.publish(topic + subtopic, message)
+
+def publish_mqtt_simple(mqtt_message: SimpleMQTTMessage):
+    """
+    Publishes a simple message to a configured MQTT topic.
+    
+    :param mqtt_message: SimpleMQTTMessage object
+    """
+    client.publish(topic + mqtt_message.subtopic, mqtt_message.message)
 
 if __name__ == "__main__":
     publish_mqtt("Hello, MQTT!")

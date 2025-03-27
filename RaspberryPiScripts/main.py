@@ -1,6 +1,6 @@
 import can_reader
 import time
-from mqtt_publisher import MQTTMessage, publish_mqtt
+from mqtt_publisher import MQTTMessage, publish_mqtt, publish_mqtt_simple
 from serial_handler import SerialHandler
 
 def test():
@@ -66,19 +66,21 @@ def test_no_generator():
 
 def main():
     #serial_handler = SerialHandler()
-    mqtt_message = MQTTMessage()
+    #mqtt_message = MQTTMessage()
     try:
         while True:
             #signal_strength = serial_handler.read_signal_strength_data()
             #mqtt_message.add_signal_strength(signal_strength)
             #gps_data = serial_handler.read_gps_data()
             #mqtt_message.add_gps_data(gps_data["utc"], gps_data["latitude"], gps_data["longitude"], gps_data["speed"], gps_data["date"])
-            can_data = can_reader.read()
-            if "Unknown" in can_data["name"]:
+            for can_data in can_reader.read():
+                publish_mqtt_simple(can_data)
+                print(f"CAN data: {can_data}")
+            """if "Unknown" in can_data["name"]:
                 continue
             mqtt_message.add_can_data(can_data)
             print(f"Message: {mqtt_message.to_json()}")
-            publish_mqtt(mqtt_message.to_json())
+            publish_mqtt(mqtt_message.to_json())"""
             
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
