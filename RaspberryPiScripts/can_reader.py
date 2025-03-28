@@ -94,6 +94,48 @@ def create_mqtt_payloads(
 
     return payloads
 
+def create_mqtt_payloads_with_both_values(
+    db_message: cantools.database.can.Message,
+    message: dict,
+    timestamp: float
+) -> list[SimpleMQTTMessage]: 
+    
+    payloads = []
+
+    for name, value in message.items():
+        payload = SimpleMQTTMessage()
+        
+        try:
+            unit = db_message.get_signal_by_name(name).unit
+        except KeyError:
+            unit = None
+        
+        payload_dict = {
+            "timestamp": timestamp,
+            "data": None, 
+            "unit": unit,
+            "string_value": None
+        }
+        
+        """ 
+        if the data is not numerical (NamedSignalValue), we get the numerical value and the string value otherwise we just use the numerical value"
+
+        if value = "ok" -> data = 1 and string_value = "ok"
+        if value = 1 -> data = 1 and string_value = None
+
+        """
+        if isinstance(value, cantools.database.namedsignalvalue.NamedSignalValue):
+            payload_dict["data"] = value.value
+            payload_dict["string_value"] = value.name
+        else:
+            payload_dict["data"] = value
+        
+        payload.message = json.dumps(payload_dict)
+        payload.subtopic = f"/{db_message.name}/{name}"
+        payloads.append(payload)
+
+    return payloads
+
 # For reading real can connection
 def read():
     time.sleep(delay)
