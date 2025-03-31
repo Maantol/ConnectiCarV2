@@ -62,11 +62,11 @@ def create_mqtt_payloads(
     timestamp: float
 ) -> list[SimpleMQTTMessage]: 
     
-    payloads = [SimpleMQTTMessage]
+    payloads = []
 
     for name, value in message.items():
 
-        payload = SimpleMQTTMessage()
+        payload = SimpleMQTTMessage("", "")
         try:
             unit = db_message.get_signal_by_name(name).unit
         except KeyError:
@@ -140,9 +140,14 @@ def create_mqtt_payloads_with_both_values(
 def read():
     time.sleep(delay)
     message = bus.recv()
+    try:
+        data = create_mqtt_payloads(db.get_message_by_frame_id(message.arbitration_id), db.decode_message(message.arbitration_id, message.data), message.timestamp)
+    except KeyError:
+        return None
+    return data
     # Decode & return CAN data
     #return create_message_entry(message, db, set())
-    return create_mqtt_payloads(db.get_message_by_frame_id(message.arbitration_id), db.decode_message(message.arbitration_id, message.data), message.timestamp)
+    
 
 # For simulation from json file
 def read_from_json():

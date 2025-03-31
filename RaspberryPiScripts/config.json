@@ -8,7 +8,7 @@
     "can": {
         "interface": "socketcan",
         "channel": "can0",
-        "delay": 0.05,
+        "delay": 0,
         "database": "toyota_rav4_hybrid_2017_pt_generated.dbc",
         "filter_set": []
     },
