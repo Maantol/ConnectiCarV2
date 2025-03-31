@@ -73,14 +73,12 @@ def main():
             #mqtt_message.add_signal_strength(signal_strength)
             #gps_data = serial_handler.read_gps_data()
             #mqtt_message.add_gps_data(gps_data["utc"], gps_data["latitude"], gps_data["longitude"], gps_data["speed"], gps_data["date"])
-            for can_data in can_reader.read():
-                publish_mqtt_simple(can_data)
-                print(f"CAN data: {can_data}")
-            """if "Unknown" in can_data["name"]:
+            data = can_reader.read()
+            if data is None:
                 continue
-            mqtt_message.add_can_data(can_data)
-            print(f"Message: {mqtt_message.to_json()}")
-            publish_mqtt(mqtt_message.to_json())"""
+            for message in data:
+                publish_mqtt_simple(message)
+                print(f"CAN data: {message}")
             
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
