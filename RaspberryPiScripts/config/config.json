@@ -9,12 +9,14 @@
         "interface": "socketcan",
         "channel": "can0",
         "delay": 0,
-        "database": "toyota_rav4_hybrid_2017_pt_generated.dbc",
+        "database": "./data/toyota_rav4_hybrid_2017_pt_generated.dbc",
         "filter_set": []
     },
     "simulation": {
-        "channel": "can_dump_2025-03-18T14_31_26.798219.json",
         "interface": "file",
-        "gps_data": "gpsmockdata.json"
+        "channel": "./data/can_dump_2025-03-18T14_31_26.798219.json",
+        "delay": 0,
+        "gps_data": "./data/gpsmockdata.json",
+        "database": "./data/toyota_rav4_hybrid_2017_pt_generated.dbc"
     }
 }

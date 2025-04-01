@@ -186,4 +186,4 @@ desktop.ini
 ._*
 
 #dumpfile
-can_dump_*.json
+#can_dump_*.json

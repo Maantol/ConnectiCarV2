@@ -5,7 +5,6 @@ from serial_handler import SerialHandler
 
 def test():
     serial_handler = SerialHandler()
-
     try:
         """
         serial.send_command_to_serial("AT+QGPS=1")  # turn on GPS
@@ -14,7 +13,7 @@ def test():
         """
         while True:
             mqtt_message = MQTTMessage()
-             # Json simulation...
+             # GPS JSON simulation...
             gps_data = serial_handler.read_json_data()
             if gps_data:
                 for data in gps_data:
@@ -24,20 +23,19 @@ def test():
                     speed = data["speed"]
                     date = data["date"]
                 mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date)
-           
-            # CANDUMP
-            for message in can_reader.read_from_json():  # Data from canbus, .read() for actual connection
+            # CANDUMP JSON sim
+            message = next(can_reader.read_from_json(), None) #picks random message...
+            if message:  # Data from can_dump.json file
                 mqtt_message.add_can_data(message)  # Add data to  message
                 # TEST PRINT
                 print(f"CAN data (JSON format): {message}")
-            
+        
             # Convert to JSON format
             json_message = mqtt_message.to_json()
-            
-
             #TEST PRINT
-            print(f"Updated message JSON with can, signal & gps: {json_message}")
-            
+            print(f"\nUpdated message JSON with can, signal & gps: {json_message} \n")  
+            #TODO: logic for publishing instead of printing...
+
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
     # finally:
@@ -85,4 +83,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    test()
