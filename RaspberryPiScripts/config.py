@@ -1,9 +1,14 @@
 import json
+import os
 
 def load_config():
-    with open("config.json", "r") as file:
+
+    #loads config from folder
+    config_file_path = os.path.join(os.path.dirname(__file__), 'config', 'config.json')
+
+    with open(config_file_path, "r") as file:
         config = json.load(file)
-        print("config: ", config)
+        print("Config: ", json.dumps(config, indent=4))
     return config
 
 config = load_config()

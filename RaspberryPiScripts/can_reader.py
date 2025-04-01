@@ -5,20 +5,13 @@ import logging
 import time
 import cantools.database
 import cantools.database.namedsignalvalue
-from RaspberryPiScripts.mqtt_publisher import SimpleMQTTMessage
+from mqtt_publisher import SimpleMQTTMessage
 import config as cfg
 import random
 
 _logger = logging.getLogger(__name__)
 
-config = cfg.get_config()
-database = config["can"]["database"]
-interface = config["can"]["interface"]
-channel = config["can"]["channel"]
-delay = config["can"]["delay"]
-filter_set = set(config["can"]["filter_set"])
-db = cantools.database.load_file(database)
-bus = can.Bus(channel=channel, interface=interface)
+"""Moved back inside of function for now..."""
 
 def create_message_entry(
     message: can.Message,
@@ -138,6 +131,17 @@ def create_mqtt_payloads_with_both_values(
 
 # For reading real can connection
 def read():
+
+    """" Moved back here...."""
+    config = cfg.get_config()
+    database = config["can"]["database"]
+    interface = config["can"]["interface"]
+    channel = config["can"]["channel"]
+    delay = config["can"]["delay"]
+    filter_set = set(config["can"]["filter_set"])
+    db = cantools.database.load_file(database)
+    bus = can.Bus(channel=channel, interface=interface) 
+
     time.sleep(delay)
     message = bus.recv()
     try:
@@ -151,6 +155,8 @@ def read():
 
 # For simulation from json file
 def read_from_json():
+    config = cfg.get_config()
+    channel = config["simulation"]["channel"]
 
     try:
         with open(channel, "r") as file:
@@ -162,15 +168,18 @@ def read_from_json():
                 print(f"Error decoding JSON: {e}")
                 return     
 
-        for message in messages:
+        while True:
             time.sleep(random.uniform(0.03, 0.06)) # simulated random delay
+            message = random.choice(messages) #picking random message
             if message.get("name") != "Unknown": # Filter placeholder!!! TODO: real filter file (vin 1-3 + unknowns etc..)
                 yield message  # Yield messages to simulate canbus
-    
+        
     except FileNotFoundError:
         print(f"Error: {channel} not found.")
 
 def read_object_from_json(index=0):
+    config = cfg.get_config()
+    channel = config["simulation"]["channel"]
     try:
         with open(channel, "r") as file:
             file_content = file.read()
