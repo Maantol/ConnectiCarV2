@@ -161,7 +161,6 @@ def read_from_json():
     try:
         with open(channel, "r") as file:
             file_content = file.read()
-
             try:
                 messages = json.loads(file_content)  
             except json.JSONDecodeError as e:

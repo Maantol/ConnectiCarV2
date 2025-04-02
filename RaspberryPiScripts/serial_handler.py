@@ -92,33 +92,7 @@ class SerialHandler:
             return self.s.readline().decode().strip()
         
 
-
-    # For simulation from json file
-    def read_json_data(self):
-
-        test_data_file = cfg.get_config()["simulation"]["gps_data"]
-        
-        try:
-            with open(test_data_file, "r") as file:
-                file_content = file.read()
-
-                try:
-                    data = json.loads(file_content)  
-                    #print(f"loaded json data: {data}")
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}")
-                    return   
-            
-            for gps_data in data:
-                time.sleep(0.13) # simulated delay
-                yield gps_data  # Yield messages to simulate canbus
-    
-        except Exception as e:
-            print(f"Error loading test data from {test_data_file}: {e}")
-            return {}
-        
-
-    # reads next line from json file
+    # reads next line from json file for simulation
     def read_gps_json_object_from_array(self, index=0):
 
         test_data_file = cfg.get_config()["simulation"]["gps_data"]
@@ -129,7 +103,7 @@ class SerialHandler:
 
                 try:
                     data = json.loads(file_content)  
-                    print(f"loaded json data: {data}")
+                    #print(f"loaded json data: {data}")
                 except json.JSONDecodeError as e:
                     print(f"Error decoding JSON: {e}")
                     return   
