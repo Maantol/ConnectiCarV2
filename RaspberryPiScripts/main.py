@@ -3,6 +3,7 @@ import time
 from mqtt_publisher import MQTTMessage, publish_mqtt, publish_mqtt_simple
 from serial_handler import SerialHandler
 
+
 def test():
     serial_handler = SerialHandler()
     try:
@@ -11,30 +12,36 @@ def test():
         print("Waiting 2 minutes for GPS.")
         time.sleep(120)
         """
+        i = 0 #index for looping through gpsmockdata
         while True:
             mqtt_message = MQTTMessage()
-             # GPS JSON simulation...
-            gps_data = serial_handler.read_json_data()
+            # GPS JSON simulation...
+            gps_data = serial_handler.read_gps_json_object_from_array(index=i)
             if gps_data:
-                for data in gps_data:
-                    timestamp = data["utc"]
-                    latitude = data["latitude"]
-                    longitude = data["longitude"]
-                    speed = data["speed"]
-                    date = data["date"]
+                timestamp = gps_data["utc"]
+                latitude = gps_data["latitude"]
+                longitude = gps_data["longitude"]
+                speed = gps_data["speed"]
+                date = gps_data["date"]
                 mqtt_message.add_gps_data(timestamp, latitude, longitude, speed, date)
+                i += 1
+            #Hardcoded index reset length, since mockdata is 7 objects long, checking length dynamically is too much effort for this purpose :D
+            if i >= 7:
+                i = 0
             # CANDUMP JSON sim
             message = next(can_reader.read_from_json(), None) #picks random message...
             if message:  # Data from can_dump.json file
                 mqtt_message.add_can_data(message)  # Add data to  message
                 # TEST PRINT
-                print(f"CAN data (JSON format): {message}")
+                #print(f"CAN data (JSON format): {message}")
         
             # Convert to JSON format
             json_message = mqtt_message.to_json()
             #TEST PRINT
             print(f"\nUpdated message JSON with can, signal & gps: {json_message} \n")  
-            #TODO: logic for publishing instead of printing...
+            #TODO: logic for publishing instead of printing... (add topic+subtopic?)
+            #publish_mqtt(json_message) ?
+            time.sleep(0.5)
 
     except KeyboardInterrupt:
         print("Code execution was interrupted by user.")
