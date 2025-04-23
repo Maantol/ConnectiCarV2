@@ -11,7 +11,16 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-"""Moved back inside of function for now..."""
+#### To use with mock data, comment/remove this part of the code...
+config = cfg.get_config()
+database = config["can"]["database"]
+interface = config["can"]["interface"]
+channel = config["can"]["channel"]
+delay = config["can"]["delay"]
+filter_set = set(config["can"]["filter_set"])
+db = cantools.database.load_file(database)
+bus = can.Bus(channel=channel, interface=interface) 
+####
 
 def create_message_entry(
     message: can.Message,
@@ -131,17 +140,6 @@ def create_mqtt_payloads_with_both_values(
 
 # For reading real can connection
 def read():
-
-    """" Moved back here...."""
-    config = cfg.get_config()
-    database = config["can"]["database"]
-    interface = config["can"]["interface"]
-    channel = config["can"]["channel"]
-    delay = config["can"]["delay"]
-    filter_set = set(config["can"]["filter_set"])
-    db = cantools.database.load_file(database)
-    bus = can.Bus(channel=channel, interface=interface) 
-
     time.sleep(delay)
     message = bus.recv()
     try:
