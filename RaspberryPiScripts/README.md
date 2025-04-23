@@ -106,17 +106,17 @@ route add -net 0.0.0.0 "$interface"
 ### Architecture / Code structure
 - `main.py`: Running main process loop
 - `can_reader.py`: CAN bus data reading
-- `serial_handler.py`: (Reads GPS & signal strength), currently disabled due to possibly changing the modem in the future
+- `serial_handler.py`: Reads GPS & signal strength, GPS currently unused due to possibly changing the modem in the future due to issues with the current configuration.
 - `mqtt_publisher.py`: Formatting and publishing MQTT messages
 
-### Contents of the scripts / scripts + usage?
+### Contents of the scripts
 
 - `main.py`:
     - Reads signal strength (& GPS) values using `serial_handler.py` 
     - Reads data from CAN bus using `can_reader.py`
     - Filters out messages currently "unknown" in the dbc file
     - Formats the data into JSON and sends it to telegraf using `mqtt_publisher.py`
-    - Test mode using saved .json dump for testing without physical can connection
+    - Test/Simulation mode using saved .json dump for testing & development without physical CAN connection and gps signal.
     
 - `can_reader.py`:
     - Reads the data stream from car's CAN bus in real-time
@@ -146,8 +146,12 @@ route add -net 0.0.0.0 "$interface"
 
 
 ### Running the scripts
+> [!TIP]
+> Make sure you are in the correct directory (RaspberryPiScripts).
+
 To run any of the scripts, simply give the following command:
 ```sh
 sudo python3 <file_name>
 ```
-> NOTE: sudo is required due to opening the serial connection.
+> [!NOTE] 
+> sudo is required due to opening the serial connection.
