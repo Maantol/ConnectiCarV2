@@ -18,7 +18,6 @@ class SerialHandler:
             print(e)
         """
 
-
     def read_signal_strength_data(self):
         """Reads signal strength data through the serial port.
 
@@ -91,7 +90,6 @@ class SerialHandler:
             self.s.readline()  # Filter out the line containing the given command
             return self.s.readline().decode().strip()
         
-
     # reads next line from json file for simulation
     def read_gps_json_object_from_array(self, index=0):
 
@@ -121,11 +119,5 @@ class SerialHandler:
     def read_random_signal_strength(self):
         return int(time.time()) % 32
         
-# --- TEST THE MOCK SERIAL HANDLER ---
-if __name__ == "__main__":
-    mock_serial = SerialHandler()
-    # Test GPS data
-    gps_data = mock_serial.read_json_data()
-    for data in gps_data:
-        print("")
+
 

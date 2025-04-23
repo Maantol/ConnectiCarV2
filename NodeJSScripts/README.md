@@ -1,3 +1,6 @@
+> [!IMPORTANT]   
+NodeJS scripts remain unchanged from the previous implementation and are unlikely to work with the current setup without modification, as we used Grafana for data visualisation.
+
 # Instructions on how to setup the server
 
 ## Requirements
