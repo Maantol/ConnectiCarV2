@@ -35,7 +35,8 @@ You can follow the instructions on the [Waveshare website](https://www.waveshare
 ```
 After going through the steps mentioned above, you can run the startupscript.sh manually. After that, you should have a working internet connection and you can test this out by pinging a website through a terminal or opening a website in a browser.
 
->NOTE: *Some critique can be made in terms of removing the modem and network-managers, but this is how Waveshare has officially instructed to do.*
+> [!NOTE]  
+*Some critique can be made in terms of removing the modem and network-managers, but this is how Waveshare has officially instructed to do.*
 
 ## Creating a routine to run startupscript.sh every time the machine boots
 
@@ -77,6 +78,9 @@ You can run the startupscript simply by navigating to the RaspberryPiScripts dir
 ./startupscript.sh
 ```
 
+> [!NOTE]  
+The `startupscript.sh` will most likely not work properly if modemmanager and network-manager haven't been removed from the device.
+
 Main contents of the startupscript.sh:
 ```sh
 # captures the interface starting with the prefix enx
@@ -88,7 +92,17 @@ udhcpc -i "$interface"
 # adds the captured interface to the routing tables
 route add -net 0.0.0.0 "$interface"
 ```
-> NOTE: The `startupscript.sh` will most likely not work properly if modemmanager and network-manager haven't been removed from the device.
+> [!IMPORTANT]  
+> The `startupscript.sh` may not work sometimes due to unknown reason. In that case do the following:
+1. List all the network interfaces in terminal by using
+```sh
+ip a
+```
+2. Replace the interface from `startupscript.sh` with the one starting with "enx"
+```sh
+interface= YOUR ADDRESS FROM ip a
+```
+3. Run `startupscript.sh` again
 
 # Running the other scripts after setting up Raspberry
 
