@@ -116,7 +116,12 @@ interface= YOUR ADDRESS FROM ip a
     ```sh
     pip install -r requirements.txt
     ```
-
+3. Opening CAN bus:
+   ```sh
+    sudo ip link set can0 type can bitrate 500000
+    sudo ip link set up can0
+   ```
+   
 ### Architecture / Code structure
 - `main.py`: Running main process loop
 - `can_reader.py`: CAN bus data reading
