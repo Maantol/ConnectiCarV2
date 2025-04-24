@@ -1,6 +1,6 @@
 # ConnectiCar V2
 
-ConnectiCar V2 is the next iteration of the ConnectiCar project. ConnectiCar V2 continuation project has started in January 2025. (Ran through May 2025)
+ConnectiCar V2 is the next iteration of the ConnectiCar project. ConnectiCar V2 continuation project started in January 2025 and concluded in April 2025.
 
 Please visit the original 
 [Version 1 repository](https://github.com/jereej/ConnectiCar/)

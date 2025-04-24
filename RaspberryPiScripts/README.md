@@ -106,7 +106,7 @@ interface= YOUR ADDRESS FROM ip a
 
 # Running the other scripts after setting up Raspberry
 
-### Setting up / Installation?
+### Setting up
 1. Cloning the repository:
     ```sh
     git clone <url>
@@ -166,7 +166,7 @@ interface= YOUR ADDRESS FROM ip a
 
 ### Running the scripts
 > [!TIP]
-> Make sure you are in the correct directory (RaspberryPiScripts).
+> Make sure you are in the correct directory (RaspberryPiScripts) and have activated the virtual environment.
 
 To run any of the scripts, simply give the following command:
 ```sh
