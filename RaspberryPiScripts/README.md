@@ -98,7 +98,7 @@ route add -net 0.0.0.0 "$interface"
 ```sh
 ip a
 ```
-2. Replace the interface from startupscript with the one starting with "enx"
+2. Replace the interface from `startupscript.sh` with the one starting with "enx"
 ```sh
 interface= YOUR ADDRESS FROM ip a
 ```
