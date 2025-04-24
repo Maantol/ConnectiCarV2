@@ -116,7 +116,12 @@ interface= YOUR ADDRESS FROM ip a
     ```sh
     pip install -r requirements.txt
     ```
-
+3. Opening CAN bus:
+   ```sh
+    sudo ip link set can0 type can bitrate 500000
+    sudo ip link set up can0
+   ```
+   
 ### Architecture / Code structure
 - `main.py`: Running main process loop
 - `can_reader.py`: CAN bus data reading
@@ -126,10 +131,10 @@ interface= YOUR ADDRESS FROM ip a
 ### Contents of the scripts
 
 - `main.py`:
-    - Reads signal strength (& GPS) values using `serial_handler.py` 
+    - Reads signal strength (& GPS) values using `serial_handler.py` (currently disabled)
     - Reads data from CAN bus using `can_reader.py`
     - Filters out messages currently "unknown" in the dbc file
-    - Formats the data into JSON and sends it to telegraf using `mqtt_publisher.py`
+    - Formats the data into JSON and sends it to the MQTT broker using `mqtt_publisher.py`
     - Test/Simulation mode using saved .json dump for testing & development without physical CAN connection and gps signal.
     
 - `can_reader.py`:
