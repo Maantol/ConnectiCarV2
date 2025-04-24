@@ -126,10 +126,10 @@ interface= YOUR ADDRESS FROM ip a
 ### Contents of the scripts
 
 - `main.py`:
-    - Reads signal strength (& GPS) values using `serial_handler.py` 
+    - Reads signal strength (& GPS) values using `serial_handler.py` (currently disabled)
     - Reads data from CAN bus using `can_reader.py`
     - Filters out messages currently "unknown" in the dbc file
-    - Formats the data into JSON and sends it to telegraf using `mqtt_publisher.py`
+    - Formats the data into JSON and sends it to the MQTT broker using `mqtt_publisher.py`
     - Test/Simulation mode using saved .json dump for testing & development without physical CAN connection and gps signal.
     
 - `can_reader.py`:
